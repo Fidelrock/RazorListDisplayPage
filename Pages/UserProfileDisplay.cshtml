@@ -1,0 +1,113 @@
+@page
+@model UserProfileDisplayModel
+@{
+    ViewData["Title"] = "Demo Display Page";
+}
+
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold">@ViewData["Title"]</h4>
+        <button class="btn btn-teal px-4"><i class="fas fa-arrow-left me-2"></i>BACK</button>
+    </div>
+
+    <div class="card mb-3 p-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Client Code:</label>
+                <input asp-for="ClientCode" type="text" class="form-control" placeholder="CARLTD" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Authority Key:</label>
+                <input asp-for="AuthorityKey" type="text" class="form-control" />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-teal w-100"><i class="fas fa-search me-2"></i>SEARCH</button>
+            </div>
+        </form>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success d-flex align-items-center py-2 mb-3" role="alert" style="max-width:600px;">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>@Model.SuccessMessage</span>
+        </div>
+    }
+
+    <div class="card p-3">
+        <table class="table table-bordered table-striped align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>ClientCode</th>
+                    <th>AuthorityKey</th>
+                    <th>Currency</th>
+                    <th>Active</th>
+                    <th>TaxType</th>
+                    <th>TaxBase</th>
+                    <th>LastMaintained</th>
+                    <th>CreatedOn</th>
+                    <th>UpdatedOn</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Results != null)
+                {
+                    foreach (var row in Model.Results)
+                    {
+                        <tr>
+                            <td>@row.ClientCode</td>
+                            <td>@row.AuthorityKey</td>
+                            <td>@row.Currency</td>
+                            <td>@row.Active</td>
+                            <td>@row.TaxType</td>
+                            <td>@row.TaxBase</td>
+                            <td>@row.LastMaintained.ToString("dd-MMM-yyyy")</td>
+                            <td>@row.CreatedOn.ToString("dd-MMM-yyyy")</td>
+                            <td>@row.UpdatedOn.ToString("dd-MMM-yyyy")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    .btn-teal {
+        background: #009688;
+        color: #fff;
+        border: none;
+        transition: background 0.2s;
+    }
+    .btn-teal:hover, .btn-teal:focus {
+        background: #00796b;
+        color: #fff;
+    }
+    .table-dark th {
+        background: #263238 !important;
+        color: #fff;
+        font-weight: 600;
+    }
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        border: 1px solid #e0e0e0;
+        background: #fff;
+    }
+    .form-label {
+        font-weight: 500;
+        color: #263238;
+    }
+    .alert-success {
+        background: #e6f9ed;
+        color: #256029;
+        border: 1px solid #b2dfdb;
+        font-weight: 500;
+    }
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
