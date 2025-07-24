@@ -63,7 +63,7 @@
                             <td>@row.TaxBase</td>
                             <td>@row.LastMaintained.ToString("dd-MMM-yyyy")</td>
                             <td>@row.CreatedOn.ToString("dd-MMM-yyyy")</td>
-                            <td>@row.UpdatedOn.ToString("dd-MMM-yyyy")</td>
+                            <td>@(row.UpdatedOn.HasValue? row.UpdatedOn.Value.ToString("dd-MMM-yyyy") : "N/A")</td>
                         </tr>
                     }
                 }
