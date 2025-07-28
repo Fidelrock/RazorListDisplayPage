@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using RazorTableDemo.Data;
+using RazorTableDemo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddControllers(); // Add API controller support
+
+// Register services
+builder.Services.AddScoped<ITaxAuthorityService, TaxAuthorityService>();
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -27,5 +32,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapControllers(); // Map API controllers
 
 app.Run();

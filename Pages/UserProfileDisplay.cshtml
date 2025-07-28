@@ -7,11 +7,21 @@
 <div class="container-fluid p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="fw-bold">@ViewData["Title"]</h4>
-        <button class="btn btn-teal px-4"><i class="fas fa-arrow-left me-2"></i>BACK</button>
+        <button class="btn btn-teal px-4" id="backButton"><i class="fas fa-arrow-left me-2"></i>BACK</button>
+    </div>
+
+    <!-- Page Loading Overlay -->
+    <div id="pageLoadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-border text-teal" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-teal">Loading data...</p>
+        </div>
     </div>
 
     <div class="card mb-3 p-3">
-        <form method="get" class="row g-3 align-items-end">
+        <form method="get" class="row g-3 align-items-end" id="searchForm">
             <div class="col-md-3">
                 <label class="form-label">Client Code:</label>
                 <input asp-for="ClientCode" type="text" class="form-control" placeholder="CARLTD" />
@@ -21,9 +31,30 @@
                 <input asp-for="AuthorityKey" type="text" class="form-control" />
             </div>
             <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-teal w-100"><i class="fas fa-search me-2"></i>SEARCH</button>
+                <button type="submit" class="btn btn-teal w-100" id="searchButton">
+                    <span class="button-text"><i class="fas fa-search me-2"></i>SEARCH</span>
+                    <span class="button-loading" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Searching...
+                    </span>
+                </button>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-secondary w-100" id="ajaxSearchButton">
+                    <span class="button-text"><i class="fas fa-sync-alt me-2"></i>AJAX SEARCH</span>
+                    <span class="button-loading" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Loading...
+                    </span>
+                </button>
             </div>
         </form>
+    </div>
+
+    <!-- Progress Bar for AJAX Operations -->
+    <div id="progressContainer" class="progress mb-3" style="display: none;">
+        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-teal" 
+             role="progressbar" style="width: 0%"></div>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.SuccessMessage))
@@ -34,41 +65,89 @@
         </div>
     }
 
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger d-flex align-items-center py-2 mb-3" role="alert" style="max-width:600px;">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span>@Model.ErrorMessage</span>
+        </div>
+    }
+
+    <!-- Error Alert for AJAX -->
+    <div id="errorAlert" class="alert alert-danger d-flex align-items-center py-2 mb-3" role="alert" style="display: none; max-width:600px;">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span id="errorMessage"></span>
+    </div>
+
     <div class="card p-3">
-        <table class="table table-bordered table-striped align-middle mb-0">
-            <thead class="table-dark">
-                <tr>
-                    <th>ClientCode</th>
-                    <th>AuthorityKey</th>
-                    <th>Currency</th>
-                    <th>Active</th>
-                    <th>TaxType</th>
-                    <th>TaxBase</th>
-                    <th>LastMaintained</th>
-                    <th>CreatedOn</th>
-                    <th>UpdatedOn</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Results != null)
-                {
-                    foreach (var row in Model.Results)
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Tax Authorities</h5>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary" id="refreshButton">
+                    <span class="button-text"><i class="fas fa-refresh me-1"></i>Refresh</span>
+                    <span class="button-loading" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    </span>
+                </button>
+                <button class="btn btn-sm btn-outline-success" id="exportButton">
+                    <span class="button-text"><i class="fas fa-download me-1"></i>Export</span>
+                    <span class="button-loading" style="display: none;">
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <div id="tableContainer">
+            <table class="table table-bordered table-striped align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ClientCode</th>
+                        <th>AuthorityKey</th>
+                        <th>Currency</th>
+                        <th>Active</th>
+                        <th>TaxType</th>
+                        <th>TaxBase</th>
+                        <th>LastMaintained</th>
+                        <th>CreatedOn</th>
+                        <th>UpdatedOn</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    @if (Model.Results != null)
                     {
-                        <tr>
-                            <td>@row.ClientCode</td>
-                            <td>@row.AuthorityKey</td>
-                            <td>@row.Currency</td>
-                            <td>@row.Active</td>
-                            <td>@row.TaxType</td>
-                            <td>@row.TaxBase</td>
-                            <td>@row.LastMaintained.ToString("dd-MMM-yyyy")</td>
-                            <td>@row.CreatedOn.ToString("dd-MMM-yyyy")</td>
-                            <td>@(row.UpdatedOn.HasValue? row.UpdatedOn.Value.ToString("dd-MMM-yyyy") : "N/A")</td>
-                        </tr>
+                        foreach (var row in Model.Results)
+                        {
+                            <tr>
+                                <td>@row.ClientCode</td>
+                                <td>@row.AuthorityKey</td>
+                                <td>@row.Currency</td>
+                                <td>@row.Active</td>
+                                <td>@row.TaxType</td>
+                                <td>@row.TaxBase</td>
+                                <td>@row.LastMaintained.ToString("dd-MMM-yyyy")</td>
+                                <td>@row.CreatedOn.ToString("dd-MMM-yyyy")</td>
+                                <td>@(row.UpdatedOn.HasValue? row.UpdatedOn.Value.ToString("dd-MMM-yyyy") : "N/A")</td>
+                            </tr>
+                        }
                     }
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table Loading Placeholder -->
+        <div id="tableLoading" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-teal" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading tax authorities...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-5" style="display: none;">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No tax authorities found</p>
+        </div>
     </div>
 </div>
 
@@ -85,6 +164,12 @@
     .btn-teal:hover, .btn-teal:focus {
         background: #00796b;
         color: #fff;
+    }
+    .bg-teal {
+        background-color: #009688 !important;
+    }
+    .text-teal {
+        color: #009688 !important;
     }
     .table-dark th {
         background: #263238 !important;
@@ -110,4 +195,254 @@
     .table td, .table th {
         vertical-align: middle;
     }
+
+    /* Loading Overlay Styles */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .loading-content {
+        text-align: center;
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Button Loading States */
+    .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* Progress Bar Animation */
+    .progress-bar-animated {
+        animation: progress-bar-stripes 1s linear infinite;
+    }
+
+    @@keyframes progress-bar-stripes {
+        0% { background-position-x: 1rem; }
+    }
+
+    /* Fade In Animation */
+    .fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
+
+<script>
+    // Utility functions for loading states
+    const LoadingManager = {
+        showPageLoading() {
+            document.getElementById('pageLoadingOverlay').style.display = 'flex';
+        },
+        
+        hidePageLoading() {
+            document.getElementById('pageLoadingOverlay').style.display = 'none';
+        },
+        
+        showButtonLoading(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = true;
+                button.querySelector('.button-text').style.display = 'none';
+                button.querySelector('.button-loading').style.display = 'inline-block';
+            }
+        },
+        
+        hideButtonLoading(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.disabled = false;
+                button.querySelector('.button-text').style.display = 'inline-block';
+                button.querySelector('.button-loading').style.display = 'none';
+            }
+        },
+        
+        showProgressBar() {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+        },
+        
+        updateProgress(percentage) {
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+        },
+        
+        hideProgressBar() {
+            document.getElementById('progressContainer').style.display = 'none';
+        },
+        
+        showTableLoading() {
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('tableLoading').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+        },
+        
+        hideTableLoading() {
+            document.getElementById('tableLoading').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'block';
+        },
+        
+        showEmptyState() {
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('tableLoading').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        },
+        
+        showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'flex';
+            errorAlert.classList.add('fade-in');
+        },
+        
+        hideError() {
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+    };
+
+    // Form submission with loading indicator
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+        LoadingManager.showButtonLoading('searchButton');
+        LoadingManager.hideError();
+        
+        // Simulate some delay to show the loading state
+        setTimeout(() => {
+            LoadingManager.hideButtonLoading('searchButton');
+        }, 1000);
+    });
+
+    // AJAX search functionality
+    document.getElementById('ajaxSearchButton').addEventListener('click', function() {
+        const clientCode = document.querySelector('input[asp-for="ClientCode"]').value;
+        const authorityKey = document.querySelector('input[asp-for="AuthorityKey"]').value;
+        
+        LoadingManager.showButtonLoading('ajaxSearchButton');
+        LoadingManager.showProgressBar();
+        LoadingManager.showTableLoading();
+        LoadingManager.hideError();
+        
+        // Simulate progress updates
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            LoadingManager.updateProgress(progress);
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+            }
+        }, 100);
+        
+        // Make AJAX request
+        fetch(`/api/UserProfileApi?clientCode=${encodeURIComponent(clientCode)}&authorityKey=${encodeURIComponent(authorityKey)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                LoadingManager.hideProgressBar();
+                LoadingManager.hideTableLoading();
+                LoadingManager.hideButtonLoading('ajaxSearchButton');
+                
+                if (data && data.length > 0) {
+                    updateTable(data);
+                } else {
+                    LoadingManager.showEmptyState();
+                }
+            })
+            .catch(error => {
+                LoadingManager.hideProgressBar();
+                LoadingManager.hideTableLoading();
+                LoadingManager.hideButtonLoading('ajaxSearchButton');
+                LoadingManager.showError('Error loading data: ' + error.message);
+            });
+    });
+
+    // Refresh button
+    document.getElementById('refreshButton').addEventListener('click', function() {
+        LoadingManager.showButtonLoading('refreshButton');
+        LoadingManager.hideError();
+        
+        // Reload the page
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    });
+
+    // Export button
+    document.getElementById('exportButton').addEventListener('click', function() {
+        LoadingManager.showButtonLoading('exportButton');
+        LoadingManager.hideError();
+        
+        // Simulate export process
+        setTimeout(() => {
+            LoadingManager.hideButtonLoading('exportButton');
+            alert('Export functionality would be implemented here');
+        }, 2000);
+    });
+
+    // Back button
+    document.getElementById('backButton').addEventListener('click', function() {
+        LoadingManager.showPageLoading();
+        
+        setTimeout(() => {
+            window.history.back();
+        }, 500);
+    });
+
+    // Function to update table with AJAX data
+    function updateTable(data) {
+        const tbody = document.getElementById('resultsTableBody');
+        tbody.innerHTML = '';
+        
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.clientCode || ''}</td>
+                <td>${row.authorityKey || ''}</td>
+                <td>${row.currency || ''}</td>
+                <td>${row.active || ''}</td>
+                <td>${row.taxType || ''}</td>
+                <td>${row.taxBase || ''}</td>
+                <td>${row.lastMaintained ? new Date(row.lastMaintained).toLocaleDateString('en-GB') : ''}</td>
+                <td>${row.createdOn ? new Date(row.createdOn).toLocaleDateString('en-GB') : ''}</td>
+                <td>${row.updatedOn ? new Date(row.updatedOn).toLocaleDateString('en-GB') : 'N/A'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+        
+        document.getElementById('tableContainer').classList.add('fade-in');
+    }
+
+    // Show page loading on initial load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide any initial loading states
+        LoadingManager.hidePageLoading();
+        LoadingManager.hideError();
+        
+        // Clear any persisted error states
+        const errorAlert = document.getElementById('errorAlert');
+        if (errorAlert) {
+            errorAlert.style.display = 'none';
+        }
+    });
+</script>

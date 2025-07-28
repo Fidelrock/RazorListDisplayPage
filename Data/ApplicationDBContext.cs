@@ -8,8 +8,5 @@ namespace RazorTableDemo.Data
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options): base(options)
         {
         }
-
-        
-
     }
 }

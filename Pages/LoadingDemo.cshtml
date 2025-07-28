@@ -1,0 +1,395 @@
+@page
+@model LoadingDemoModel
+@{
+    ViewData["Title"] = "Loading Indicators Demo";
+}
+
+<div class="container mt-4">
+    <h1>Loading Indicators Demo</h1>
+    <p class="lead">This page demonstrates various types of busy indicators you can use in Razor Pages.</p>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>1. Button Loading States</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary mb-2" id="buttonSpinner">
+                        <span class="button-text">Click for Spinner</span>
+                        <span class="button-loading" style="display: none;">
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                            Loading...
+                        </span>
+                    </button>
+                    <br>
+                    <button class="btn btn-success mb-2" id="buttonDots">
+                        <span class="button-text">Click for Dots</span>
+                        <span class="button-loading" style="display: none;">
+                            <span class="loading-dots-inline">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </span>
+                            Loading...
+                        </span>
+                    </button>
+                    <br>
+                    <button class="btn btn-info" id="buttonPulse">
+                        <span class="button-text">Click for Pulse</span>
+                        <span class="button-loading" style="display: none;">
+                            <span class="pulse-inline"></span>
+                            Loading...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>2. Progress Bar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <button class="btn btn-warning" id="startProgress">Start Progress</button>
+                    <button class="btn btn-secondary" id="resetProgress">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>3. Spinner Loading</h5>
+                </div>
+                <div class="card-body text-center">
+                    @await Html.PartialAsync("_LoadingPartial", new { LoadingId = "spinnerLoading", LoadingText = "Loading with spinner...", LoadingType = "spinner", LoadingSize = "normal" })
+                    <button class="btn btn-outline-primary mt-3" onclick="LoadingUtils.show('spinnerLoading')">Show Spinner</button>
+                    <button class="btn btn-outline-secondary mt-2" onclick="LoadingUtils.hide('spinnerLoading')">Hide Spinner</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>4. Dots Loading</h5>
+                </div>
+                <div class="card-body text-center">
+                    @await Html.PartialAsync("_LoadingPartial", new { LoadingId = "dotsLoading", LoadingText = "Loading with dots...", LoadingType = "dots" })
+                    <button class="btn btn-outline-primary mt-3" onclick="LoadingUtils.show('dotsLoading')">Show Dots</button>
+                    <button class="btn btn-outline-secondary mt-2" onclick="LoadingUtils.hide('dotsLoading')">Hide Dots</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>5. Pulse Loading</h5>
+                </div>
+                <div class="card-body text-center">
+                    @await Html.PartialAsync("_LoadingPartial", new { LoadingId = "pulseLoading", LoadingText = "Loading with pulse...", LoadingType = "pulse" })
+                    <button class="btn btn-outline-primary mt-3" onclick="LoadingUtils.show('pulseLoading')">Show Pulse</button>
+                    <button class="btn btn-outline-secondary mt-2" onclick="LoadingUtils.hide('pulseLoading')">Hide Pulse</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>6. Page Loading Overlay</h5>
+                </div>
+                <div class="card-body">
+                    <p>Shows a full-page loading overlay that blocks all interactions.</p>
+                    <button class="btn btn-danger" id="showPageOverlay">Show Page Overlay</button>
+                    <button class="btn btn-secondary" id="hidePageOverlay">Hide Page Overlay</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>7. AJAX Loading Demo</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary" id="ajaxDemo">Simulate AJAX Call</button>
+                    <div id="ajaxResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>8. Loading States in Tables</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-sm btn-outline-primary" id="loadTableData">Load Data</button>
+                        <button class="btn btn-sm btn-outline-secondary" id="clearTableData">Clear Data</button>
+                    </div>
+                    
+                    <div id="tableContainer">
+                        <table class="table table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="demoTableBody">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No data loaded</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="tableLoading" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading table data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page Loading Overlay -->
+<div id="pageLoadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-content">
+        <div class="spinner-border text-white" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-white">Loading page...</p>
+    </div>
+</div>
+
+<style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .loading-content {
+        text-align: center;
+        background: rgba(0, 0, 0, 0.9);
+        padding: 2rem;
+        border-radius: 10px;
+        color: white;
+    }
+
+    .button-loading {
+        display: none;
+    }
+
+    .loading-dots-inline {
+        display: inline-flex;
+        gap: 0.25rem;
+        margin-right: 0.5rem;
+    }
+
+    .loading-dots-inline .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: currentColor;
+        animation: dot-pulse 1.4s ease-in-out infinite both;
+    }
+
+    .loading-dots-inline .dot:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dots-inline .dot:nth-child(2) { animation-delay: -0.16s; }
+    .loading-dots-inline .dot:nth-child(3) { animation-delay: 0s; }
+
+    .pulse-inline {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: currentColor;
+        animation: pulse 2s infinite;
+        margin-right: 0.5rem;
+    }
+
+    @@keyframes dot-pulse {
+        0%, 80%, 100% {
+            transform: scale(0);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    @@keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    // Button loading states
+    document.getElementById('buttonSpinner').addEventListener('click', function() {
+        const button = this;
+        button.disabled = true;
+        button.querySelector('.button-text').style.display = 'none';
+        button.querySelector('.button-loading').style.display = 'inline-block';
+        
+        setTimeout(() => {
+            button.disabled = false;
+            button.querySelector('.button-text').style.display = 'inline-block';
+            button.querySelector('.button-loading').style.display = 'none';
+        }, 3000);
+    });
+
+    document.getElementById('buttonDots').addEventListener('click', function() {
+        const button = this;
+        button.disabled = true;
+        button.querySelector('.button-text').style.display = 'none';
+        button.querySelector('.button-loading').style.display = 'inline-block';
+        
+        setTimeout(() => {
+            button.disabled = false;
+            button.querySelector('.button-text').style.display = 'inline-block';
+            button.querySelector('.button-loading').style.display = 'none';
+        }, 3000);
+    });
+
+    document.getElementById('buttonPulse').addEventListener('click', function() {
+        const button = this;
+        button.disabled = true;
+        button.querySelector('.button-text').style.display = 'none';
+        button.querySelector('.button-loading').style.display = 'inline-block';
+        
+        setTimeout(() => {
+            button.disabled = false;
+            button.querySelector('.button-text').style.display = 'inline-block';
+            button.querySelector('.button-loading').style.display = 'none';
+        }, 3000);
+    });
+
+    // Progress bar
+    document.getElementById('startProgress').addEventListener('click', function() {
+        const progressBar = document.getElementById('progressBar');
+        let progress = 0;
+        
+        const interval = setInterval(() => {
+            progress += 5;
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = progress + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                progressBar.classList.remove('progress-bar-animated');
+            }
+        }, 100);
+    });
+
+    document.getElementById('resetProgress').addEventListener('click', function() {
+        const progressBar = document.getElementById('progressBar');
+        progressBar.style.width = '0%';
+        progressBar.textContent = '';
+        progressBar.classList.add('progress-bar-animated');
+    });
+
+    // Page overlay
+    document.getElementById('showPageOverlay').addEventListener('click', function() {
+        document.getElementById('pageLoadingOverlay').style.display = 'flex';
+    });
+
+    document.getElementById('hidePageOverlay').addEventListener('click', function() {
+        document.getElementById('pageLoadingOverlay').style.display = 'none';
+    });
+
+    // AJAX demo
+    document.getElementById('ajaxDemo').addEventListener('click', function() {
+        const button = this;
+        const resultDiv = document.getElementById('ajaxResult');
+        
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading...';
+        resultDiv.innerHTML = '';
+        
+        // Simulate AJAX call
+        setTimeout(() => {
+            button.disabled = false;
+            button.textContent = 'Simulate AJAX Call';
+            resultDiv.innerHTML = '<div class="alert alert-success">AJAX call completed successfully!</div>';
+            resultDiv.classList.add('fade-in');
+        }, 2000);
+    });
+
+    // Table loading demo
+    document.getElementById('loadTableData').addEventListener('click', function() {
+        const tableContainer = document.getElementById('tableContainer');
+        const tableLoading = document.getElementById('tableLoading');
+        const tableBody = document.getElementById('demoTableBody');
+        
+        tableContainer.style.display = 'none';
+        tableLoading.style.display = 'block';
+        
+        // Simulate loading data
+        setTimeout(() => {
+            tableLoading.style.display = 'none';
+            tableContainer.style.display = 'block';
+            
+            tableBody.innerHTML = `
+                <tr><td>1</td><td>John Doe</td><td><span class="badge bg-success">Active</span></td></tr>
+                <tr><td>2</td><td>Jane Smith</td><td><span class="badge bg-warning">Pending</span></td></tr>
+                <tr><td>3</td><td>Bob Johnson</td><td><span class="badge bg-danger">Inactive</span></td></tr>
+            `;
+            
+            tableContainer.classList.add('fade-in');
+        }, 2000);
+    });
+
+    document.getElementById('clearTableData').addEventListener('click', function() {
+        const tableBody = document.getElementById('demoTableBody');
+        tableBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data loaded</td></tr>';
+    });
+</script> 

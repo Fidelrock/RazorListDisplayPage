@@ -1,45 +1,55 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Dapper;
-using Microsoft.Data.SqlClient;
 using RazorTableDemo.Models;
+using RazorTableDemo.Services;
 
 public class UserProfileDisplayModel : PageModel
 {
-    private readonly IConfiguration _configuration;
-    public UserProfileDisplayModel(IConfiguration configuration)
+    private readonly ITaxAuthorityService _taxAuthorityService;
+    
+    public UserProfileDisplayModel(ITaxAuthorityService taxAuthorityService)
     {
-        _configuration = configuration;
+        _taxAuthorityService = taxAuthorityService;
     }
 
-    public string SuccessMessage { get; set; }
+    public string? SuccessMessage { get; set; }
+    public string? ErrorMessage { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public string ClientCode { get; set; }
+    public string? ClientCode { get; set; }
     [BindProperty(SupportsGet = true)]
-    public string AuthorityKey { get; set; }
+    public string? AuthorityKey { get; set; }
 
     public List<S300TaxAuthority> Results { get; set; } = new List<S300TaxAuthority>();
 
-    public void OnGet()
+    public async Task OnGetAsync()
     {
-        using (var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+        // Clear model state to remove any persisted error messages
+        ModelState.Clear();
+        
+        // Clear any previous messages at the start
+        ErrorMessage = null;
+        SuccessMessage = null;
+        
+        try
         {
-            var sql = "SELECT * FROM S300TaxAuthority WHERE 1=1";
-            var parameters = new DynamicParameters();
-
-            if (!string.IsNullOrEmpty(ClientCode))
+            // Only fetch data if search parameters are provided
+            if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(AuthorityKey))
             {
-                sql += " AND ClientCode LIKE @ClientCode";
-                parameters.Add("ClientCode", $"%{ClientCode}%");
+                var results = await _taxAuthorityService.GetTaxAuthoritiesAsync(ClientCode, AuthorityKey);
+                Results = results.ToList();
+                
+                if (Results.Count == 0)
+                {
+                    SuccessMessage = "No tax authorities found matching your criteria.";
+                }
             }
-            if (!string.IsNullOrEmpty(AuthorityKey))
-            {
-                sql += " AND AuthorityKey LIKE @AuthorityKey";
-                parameters.Add("AuthorityKey", $"%{AuthorityKey}%");
-            }
-
-            Results = connection.Query<S300TaxAuthority>(sql, parameters).ToList();
+            // If no search parameters, leave Results as empty list
+        }
+        catch (Exception ex)
+        {
+            // Handle error appropriately
+            ErrorMessage = $"Error loading data: {ex.Message}";
         }
     }
 }
