@@ -19,8 +19,19 @@ public class UserProfileDisplayModel : PageModel
     public string? ClientCode { get; set; }
     [BindProperty(SupportsGet = true)]
     public string? AuthorityKey { get; set; }
+    
+    [BindProperty(SupportsGet = true)]
+    public new int Page { get; set; } = 1;
+    
+    [BindProperty(SupportsGet = true)]
+    public int PageSize { get; set; } = 10;
 
     public List<S300TaxAuthority> Results { get; set; } = new List<S300TaxAuthority>();
+    public int TotalCount { get; set; }
+    public int TotalPages { get; set; }
+    public int CurrentPage { get; set; }
+    public bool HasPreviousPage => CurrentPage > 1;
+    public bool HasNextPage => CurrentPage < TotalPages;
 
     public async Task OnGetAsync()
     {
@@ -33,18 +44,26 @@ public class UserProfileDisplayModel : PageModel
         
         try
         {
-            // Only fetch data if search parameters are provided
-            if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(AuthorityKey))
+            // Always fetch data for pagination, even without search parameters
+            var (results, totalCount, totalPages) = await _taxAuthorityService.GetTaxAuthoritiesPaginatedAsync(
+                ClientCode, AuthorityKey, Page, PageSize);
+            
+            Results = results.ToList();
+            TotalCount = totalCount;
+            TotalPages = totalPages;
+            CurrentPage = Page;
+            
+            if (Results.Count == 0)
             {
-                var results = await _taxAuthorityService.GetTaxAuthoritiesAsync(ClientCode, AuthorityKey);
-                Results = results.ToList();
-                
-                if (Results.Count == 0)
+                if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(AuthorityKey))
                 {
                     SuccessMessage = "No tax authorities found matching your criteria.";
                 }
+                else
+                {
+                    SuccessMessage = "No tax authorities found in the database.";
+                }
             }
-            // If no search parameters, leave Results as empty list
         }
         catch (Exception ex)
         {
