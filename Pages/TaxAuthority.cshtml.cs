@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using RazorTableDemo.Models;
 using RazorTableDemo.Services;
 
-public class UserProfileDisplayModel : PageModel
+public class TaxAuthorityModel : PageModel
 {
     private readonly ITaxAuthorityService _taxAuthorityService;
     
-    public UserProfileDisplayModel(ITaxAuthorityService taxAuthorityService)
+    public TaxAuthorityModel(ITaxAuthorityService taxAuthorityService)
     {
         _taxAuthorityService = taxAuthorityService;
     }
