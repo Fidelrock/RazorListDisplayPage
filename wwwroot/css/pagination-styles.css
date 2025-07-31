@@ -82,14 +82,7 @@
     cursor: not-allowed;
 }
 
-/* Progress Bar Animation */
-.progress-bar-animated {
-    animation: progress-bar-stripes 1s linear infinite;
-}
 
-@keyframes progress-bar-stripes {
-    0% { background-position-x: 1rem; }
-}
 
 /* Fade In Animation */
 .fade-in {

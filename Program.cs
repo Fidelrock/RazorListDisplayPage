@@ -10,6 +10,10 @@ builder.Services.AddControllers(); // Add API controller support
 
 // Register services
 builder.Services.AddScoped<ITaxAuthorityService, TaxAuthorityService>();
+builder.Services.AddScoped<IICItemMapService, ICItemMapService>();
+builder.Services.AddScoped<ISalesInvoiceService, SalesInvoiceService>();
+builder.Services.AddScoped<IETIMSEntityAttributeService, ETIMSEntityAttributeService>();
+builder.Services.AddScoped<IETIMSequenceService, ETIMSequenceService>();
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

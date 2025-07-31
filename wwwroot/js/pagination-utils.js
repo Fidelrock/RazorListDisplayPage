@@ -43,30 +43,7 @@ const LoadingManager = {
         }
     },
     
-    showProgressBar() {
-        const progressContainer = document.getElementById('progressContainer');
-        const progressBar = document.getElementById('progressBar');
-        if (progressContainer) {
-            progressContainer.style.display = 'block';
-        }
-        if (progressBar) {
-            progressBar.style.width = '0%';
-        }
-    },
-    
-    updateProgress(percentage) {
-        const progressBar = document.getElementById('progressBar');
-        if (progressBar) {
-            progressBar.style.width = percentage + '%';
-        }
-    },
-    
-    hideProgressBar() {
-        const progressContainer = document.getElementById('progressContainer');
-        if (progressContainer) {
-            progressContainer.style.display = 'none';
-        }
-    },
+
     
     showTableLoading() {
         const tableContainer = document.getElementById('tableContainer');
@@ -96,23 +73,7 @@ const LoadingManager = {
         if (emptyState) emptyState.style.display = 'block';
     },
     
-    showError(message) {
-        const errorAlert = document.getElementById('errorAlert');
-        const errorMessage = document.getElementById('errorMessage');
-        
-        if (errorMessage) errorMessage.textContent = message;
-        if (errorAlert) {
-            errorAlert.style.display = 'flex';
-            errorAlert.classList.add('fade-in');
-        }
-    },
-    
-    hideError() {
-        const errorAlert = document.getElementById('errorAlert');
-        if (errorAlert) {
-            errorAlert.style.display = 'none';
-        }
-    }
+
 };
 
 // Page size selector functionality
@@ -155,16 +116,7 @@ const PageSizeManager = {
         window.location.href = url;
     },
     
-    test() {
-        const pageSizeSelector = document.getElementById('pageSizeSelector');
-        if (pageSizeSelector) {
-            console.log('Page size selector found, current value:', pageSizeSelector.value);
-            alert('Page size selector is working! Current value: ' + pageSizeSelector.value);
-        } else {
-            console.log('Page size selector not found');
-            alert('Page size selector not found!');
-        }
-    }
+
 };
 
 // Form and button event handlers
@@ -174,7 +126,6 @@ const EventHandlers = {
         if (searchForm) {
             searchForm.addEventListener('submit', function(e) {
                 LoadingManager.showButtonLoading('searchButton');
-                LoadingManager.hideError();
                 
                 // Simulate some delay to show the loading state
                 setTimeout(() => {
@@ -189,7 +140,6 @@ const EventHandlers = {
         if (refreshButton) {
             refreshButton.addEventListener('click', function() {
                 LoadingManager.showButtonLoading('refreshButton');
-                LoadingManager.hideError();
                 
                 // Reload the page
                 setTimeout(() => {
@@ -204,7 +154,6 @@ const EventHandlers = {
         if (exportButton) {
             exportButton.addEventListener('click', function() {
                 LoadingManager.showButtonLoading('exportButton');
-                LoadingManager.hideError();
                 
                 // Simulate export process
                 setTimeout(() => {
@@ -228,101 +177,15 @@ const EventHandlers = {
         }
     },
     
-    initializeAjaxSearchButton() {
-        const ajaxSearchButton = document.getElementById('ajaxSearchButton');
-        if (ajaxSearchButton) {
-            ajaxSearchButton.addEventListener('click', function() {
-                const clientCode = document.querySelector('input[asp-for="ClientCode"]').value;
-                const authorityKey = document.querySelector('input[asp-for="AuthorityKey"]').value;
-                
-                LoadingManager.showButtonLoading('ajaxSearchButton');
-                LoadingManager.showProgressBar();
-                LoadingManager.showTableLoading();
-                LoadingManager.hideError();
-                
-                // Simulate progress updates
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += 10;
-                    LoadingManager.updateProgress(progress);
-                    if (progress >= 100) {
-                        clearInterval(progressInterval);
-                    }
-                }, 100);
-                
-                // Make AJAX request
-                fetch(`/api/UserProfileApi?clientCode=${encodeURIComponent(clientCode)}&authorityKey=${encodeURIComponent(authorityKey)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch data');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        LoadingManager.hideProgressBar();
-                        LoadingManager.hideTableLoading();
-                        LoadingManager.hideButtonLoading('ajaxSearchButton');
-                        
-                        if (data && data.length > 0) {
-                            TableManager.updateTable(data);
-                        } else {
-                            LoadingManager.showEmptyState();
-                        }
-                    })
-                    .catch(error => {
-                        LoadingManager.hideProgressBar();
-                        LoadingManager.hideTableLoading();
-                        LoadingManager.hideButtonLoading('ajaxSearchButton');
-                        // Error handling can be customized per page
-                        console.error('AJAX Error:', error);
-                    });
-            });
-        }
-    }
+
 };
 
-// Table management utilities
-const TableManager = {
-    updateTable(data) {
-        const tbody = document.getElementById('resultsTableBody');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
-        
-        data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row.clientCode || ''}</td>
-                <td>${row.authorityKey || ''}</td>
-                <td>${row.currency || ''}</td>
-                <td>${row.active || ''}</td>
-                <td>${row.taxType || ''}</td>
-                <td>${row.taxBase || ''}</td>
-                <td>${row.lastMaintained ? new Date(row.lastMaintained).toLocaleDateString('en-GB') : ''}</td>
-                <td>${row.createdOn ? new Date(row.createdOn).toLocaleDateString('en-GB') : ''}</td>
-                <td>${row.updatedOn ? new Date(row.updatedOn).toLocaleDateString('en-GB') : 'N/A'}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-        
-        const tableContainer = document.getElementById('tableContainer');
-        if (tableContainer) {
-            tableContainer.classList.add('fade-in');
-        }
-    }
-};
+
 
 // Main initialization function
 function initializePage() {
     // Hide any initial loading states
     LoadingManager.hidePageLoading();
-    LoadingManager.hideError();
-    
-    // Clear any persisted error states
-    const errorAlert = document.getElementById('errorAlert');
-    if (errorAlert) {
-        errorAlert.style.display = 'none';
-    }
     
     // Initialize all components
     PageSizeManager.initialize();
@@ -330,9 +193,6 @@ function initializePage() {
     EventHandlers.initializeRefreshButton();
     EventHandlers.initializeExportButton();
     EventHandlers.initializeBackButton();
-    
-    // AJAX search is disabled by default, but can be enabled per page
-    // EventHandlers.initializeAjaxSearchButton();
     
     console.log('Page utilities initialized successfully');
 }
@@ -342,7 +202,6 @@ window.PaginationUtils = {
     LoadingManager,
     PageSizeManager,
     EventHandlers,
-    TableManager,
     initializePage
 };
 

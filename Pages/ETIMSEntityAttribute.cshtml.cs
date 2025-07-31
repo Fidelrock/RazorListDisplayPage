@@ -1,0 +1,91 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using RazorTableDemo.Models;
+using RazorTableDemo.Services;
+
+namespace RazorTableDemo.Pages
+{
+    public class ETIMSEntityAttributeModel : PageModel
+    {
+        private readonly IETIMSEntityAttributeService _etimsEntityAttributeService;
+        
+        public ETIMSEntityAttributeModel(IETIMSEntityAttributeService etimsEntityAttributeService)
+        {
+            _etimsEntityAttributeService = etimsEntityAttributeService;
+        }
+
+        public string? SuccessMessage { get; set; }
+        public string? ErrorMessage { get; set; }
+
+        // Search parameters
+        [BindProperty(SupportsGet = true)]
+        public string? ClientCode { get; set; }
+        
+        [BindProperty(SupportsGet = true)]
+        public string? EntityType { get; set; }
+        
+        [BindProperty(SupportsGet = true)]
+        public string? SearchKey { get; set; }
+        
+        [BindProperty(SupportsGet = true)]
+        public string? EntityKey { get; set; }
+        
+        [BindProperty(SupportsGet = true)]
+        public string? Title { get; set; }
+        
+        // Pagination properties
+        [BindProperty(SupportsGet = true)]
+        public new int Page { get; set; } = 1;
+        
+        [BindProperty(SupportsGet = true)]
+        public int PageSize { get; set; } = 10;
+
+        public List<ETIMSEntityAttribute> Results { get; set; } = new List<ETIMSEntityAttribute>();
+        public int TotalCount { get; set; }
+        public int TotalPages { get; set; }
+        public int CurrentPage { get; set; }
+        public bool HasPreviousPage => CurrentPage > 1;
+        public bool HasNextPage => CurrentPage < TotalPages;
+
+        public async Task OnGetAsync()
+        {
+            // Clear model state to remove any persisted error messages
+            ModelState.Clear();
+            
+            // Clear any previous messages at the start
+            ErrorMessage = null;
+            SuccessMessage = null;
+            
+            try
+            {
+                // Always fetch data for pagination, even without search parameters
+                var (results, totalCount, totalPages) = await _etimsEntityAttributeService.GetETIMSEntityAttributesPaginatedAsync(
+                    ClientCode, EntityType, SearchKey, EntityKey, Title, Page, PageSize);
+                
+                Results = results.ToList();
+                TotalCount = totalCount;
+                TotalPages = totalPages;
+                CurrentPage = Page;
+                
+                if (Results.Count == 0)
+                {
+                    if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(EntityType) || 
+                        !string.IsNullOrEmpty(SearchKey) || !string.IsNullOrEmpty(EntityKey) ||
+                        !string.IsNullOrEmpty(Title))
+                    {
+                        ErrorMessage = "No ETIMS entity attributes found matching your criteria.";
+                    }
+                    else
+                    {
+                        SuccessMessage = "No ETIMS entity attributes found in the database.";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle error appropriately
+                ErrorMessage = $"Error loading data: {ex.Message}";
+            }
+        }
+    }
+}

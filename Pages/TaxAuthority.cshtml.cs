@@ -57,7 +57,7 @@ public class TaxAuthorityModel : PageModel
             {
                 if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(AuthorityKey))
                 {
-                    SuccessMessage = "No tax authorities found matching your criteria.";
+                    ErrorMessage = "No tax authorities found matching your criteria.";
                 }
                 else
                 {
