@@ -16,8 +16,6 @@ public class TaxAuthorityModel : PageModel
     public string? ErrorMessage { get; set; }
 
     [BindProperty(SupportsGet = true)]
-    public string? ClientCode { get; set; }
-    [BindProperty(SupportsGet = true)]
     public string? AuthorityKey { get; set; }
     
     [BindProperty(SupportsGet = true)]
@@ -46,7 +44,7 @@ public class TaxAuthorityModel : PageModel
         {
             // Always fetch data for pagination, even without search parameters
             var (results, totalCount, totalPages) = await _taxAuthorityService.GetTaxAuthoritiesPaginatedAsync(
-                ClientCode, AuthorityKey, Page, PageSize);
+                AuthorityKey, Page, PageSize);
             
             Results = results.ToList();
             TotalCount = totalCount;
@@ -55,7 +53,7 @@ public class TaxAuthorityModel : PageModel
             
             if (Results.Count == 0)
             {
-                if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(AuthorityKey))
+                if (!string.IsNullOrEmpty(AuthorityKey))
                 {
                     ErrorMessage = "No tax authorities found matching your criteria.";
                 }

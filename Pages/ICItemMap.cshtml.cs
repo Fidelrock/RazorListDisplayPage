@@ -19,16 +19,10 @@ namespace RazorTableDemo.Pages
 
         // Search parameters
         [BindProperty(SupportsGet = true)]
-        public string? ClientCode { get; set; }
-        
-        [BindProperty(SupportsGet = true)]
         public string? ItemNumber { get; set; }
         
         [BindProperty(SupportsGet = true)]
         public string? EtimItemCode { get; set; }
-        
-        [BindProperty(SupportsGet = true)]
-        public string? ItemClassCode { get; set; }
         
         // Pagination properties
         [BindProperty(SupportsGet = true)]
@@ -57,7 +51,7 @@ namespace RazorTableDemo.Pages
             {
                 // Always fetch data for pagination, even without search parameters
                 var (results, totalCount, totalPages) = await _icItemMapService.GetICItemMapsPaginatedAsync(
-                    ClientCode, ItemNumber, EtimItemCode, ItemClassCode, Page, PageSize);
+                    ItemNumber, EtimItemCode, Page, PageSize);
                 
                 Results = results.ToList();
                 TotalCount = totalCount;
@@ -66,8 +60,7 @@ namespace RazorTableDemo.Pages
                 
                 if (Results.Count == 0)
                 {
-                    if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(ItemNumber) || 
-                        !string.IsNullOrEmpty(EtimItemCode) || !string.IsNullOrEmpty(ItemClassCode))
+                    if (!string.IsNullOrEmpty(ItemNumber) || !string.IsNullOrEmpty(EtimItemCode))
                     {
                         ErrorMessage = "No item mappings found matching your criteria.";
                     }

@@ -14,23 +14,17 @@ namespace RazorTableDemo.Services
         }
 
         public async Task<(IEnumerable<ETIMSEntityAttribute> Results, int TotalCount, int TotalPages)> GetETIMSEntityAttributesPaginatedAsync(
-            string? clientCode = null, string? entityType = null, string? searchKey = null, 
-            string? entityKey = null, string? title = null, int page = 1, int pageSize = 10)
+            string? entityType = null, string? searchKey = null, int page = 1, int pageSize = 10)
         {
             using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             
-            // Build the WHERE clause
-            var whereClause = "WHERE 1=1";
+            // Build the WHERE clause - hardcode CARLTD
+            var whereClause = "WHERE ClientCode = 'CARLTD'";
             var parameters = new DynamicParameters();
             parameters.Add("Page", page);
             parameters.Add("PageSize", pageSize);
             parameters.Add("Offset", (page - 1) * pageSize);
 
-            if (!string.IsNullOrEmpty(clientCode))
-            {
-                whereClause += " AND ClientCode LIKE @ClientCode";
-                parameters.Add("ClientCode", $"%{clientCode}%");
-            }
             if (!string.IsNullOrEmpty(entityType))
             {
                 whereClause += " AND EntityType LIKE @EntityType";
@@ -40,16 +34,6 @@ namespace RazorTableDemo.Services
             {
                 whereClause += " AND SearchKey LIKE @SearchKey";
                 parameters.Add("SearchKey", $"%{searchKey}%");
-            }
-            if (!string.IsNullOrEmpty(entityKey))
-            {
-                whereClause += " AND EntityKey LIKE @EntityKey";
-                parameters.Add("EntityKey", $"%{entityKey}%");
-            }
-            if (!string.IsNullOrEmpty(title))
-            {
-                whereClause += " AND Title LIKE @Title";
-                parameters.Add("Title", $"%{title}%");
             }
 
             // Get total count
@@ -63,7 +47,7 @@ namespace RazorTableDemo.Services
             var sql = $@"
                 SELECT * FROM ETIMSEntityAttribute 
                 {whereClause}
-                ORDER BY SortOrder, ClientCode, EntityType, SearchKey
+                ORDER BY EntityType, SearchKey
                 OFFSET @Offset ROWS 
                 FETCH NEXT @PageSize ROWS ONLY";
 

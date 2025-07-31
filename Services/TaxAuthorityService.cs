@@ -16,22 +16,17 @@ namespace RazorTableDemo.Services
 
 
         public async Task<(IEnumerable<S300TaxAuthority> Results, int TotalCount, int TotalPages)> GetTaxAuthoritiesPaginatedAsync(
-            string? clientCode = null, string? authorityKey = null, int page = 1, int pageSize = 10)
+            string? authorityKey = null, int page = 1, int pageSize = 10)
         {
             using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             
-            // Build the WHERE clause
-            var whereClause = "WHERE 1=1";
+            // Build the WHERE clause - hardcode CARLTD
+            var whereClause = "WHERE ClientCode = 'CARLTD'";
             var parameters = new DynamicParameters();
             parameters.Add("Page", page);
             parameters.Add("PageSize", pageSize);
             parameters.Add("Offset", (page - 1) * pageSize);
 
-            if (!string.IsNullOrEmpty(clientCode))
-            {
-                whereClause += " AND ClientCode LIKE @ClientCode";
-                parameters.Add("ClientCode", $"%{clientCode}%");
-            }
             if (!string.IsNullOrEmpty(authorityKey))
             {
                 whereClause += " AND AuthorityKey LIKE @AuthorityKey";
@@ -49,7 +44,7 @@ namespace RazorTableDemo.Services
             var sql = $@"
                 SELECT * FROM S300TaxAuthority 
                 {whereClause}
-                ORDER BY ClientCode, AuthorityKey
+                ORDER BY AuthorityKey
                 OFFSET @Offset ROWS 
                 FETCH NEXT @PageSize ROWS ONLY";
 

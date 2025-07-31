@@ -19,19 +19,10 @@ namespace RazorTableDemo.Pages
 
         // Search parameters
         [BindProperty(SupportsGet = true)]
-        public string? ClientCode { get; set; }
-        
-        [BindProperty(SupportsGet = true)]
         public string? EntityType { get; set; }
         
         [BindProperty(SupportsGet = true)]
         public string? SearchKey { get; set; }
-        
-        [BindProperty(SupportsGet = true)]
-        public string? EntityKey { get; set; }
-        
-        [BindProperty(SupportsGet = true)]
-        public string? Title { get; set; }
         
         // Pagination properties
         [BindProperty(SupportsGet = true)]
@@ -60,7 +51,7 @@ namespace RazorTableDemo.Pages
             {
                 // Always fetch data for pagination, even without search parameters
                 var (results, totalCount, totalPages) = await _etimsEntityAttributeService.GetETIMSEntityAttributesPaginatedAsync(
-                    ClientCode, EntityType, SearchKey, EntityKey, Title, Page, PageSize);
+                    EntityType, SearchKey, Page, PageSize);
                 
                 Results = results.ToList();
                 TotalCount = totalCount;
@@ -69,9 +60,7 @@ namespace RazorTableDemo.Pages
                 
                 if (Results.Count == 0)
                 {
-                    if (!string.IsNullOrEmpty(ClientCode) || !string.IsNullOrEmpty(EntityType) || 
-                        !string.IsNullOrEmpty(SearchKey) || !string.IsNullOrEmpty(EntityKey) ||
-                        !string.IsNullOrEmpty(Title))
+                    if (!string.IsNullOrEmpty(EntityType) || !string.IsNullOrEmpty(SearchKey))
                     {
                         ErrorMessage = "No ETIMS entity attributes found matching your criteria.";
                     }

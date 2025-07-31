@@ -1,7 +1,7 @@
 @page
 @model TaxAuthorityModel
 @{
-    ViewData["Title"] = "Tax Authoruty Display";
+    ViewData["Title"] = "Tax Authorities";
 }
 
 <div class="container-fluid p-4">
@@ -22,11 +22,7 @@
 
     <div class="card mb-3 p-3">
         <form method="get" class="row g-3 align-items-end" id="searchForm">
-            <div class="col-md-3">
-                <label class="form-label">Client Code:</label>
-                <input asp-for="ClientCode" type="text" class="form-control" placeholder="CARLTD" />
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label class="form-label">Authority Key:</label>
                 <input asp-for="AuthorityKey" type="text" class="form-control" />
             </div>
@@ -158,14 +154,14 @@
                     <ul class="pagination pagination-sm mb-0">
                         <!-- First Page -->
                         <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="?Page=1&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="First">
+                            <a class="page-link" href="?Page=1&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="First">
                                 <i class="fas fa-angle-double-left"></i>
                             </a>
                         </li>
                         
                         <!-- Previous Page -->
                         <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                            <a class="page-link" href="?Page=@(Model.CurrentPage - 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="Previous">
+                            <a class="page-link" href="?Page=@(Model.CurrentPage - 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="Previous">
                                 <i class="fas fa-angle-left"></i>
                             </a>
                         </li>
@@ -186,7 +182,7 @@
                         @for (int i = startPage; i <= endPage; i++)
                         {
                             <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                <a class="page-link" href="?Page=@i&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)">@i</a>
+                                <a class="page-link" href="?Page=@i&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)">@i</a>
                             </li>
                         }
                         
@@ -199,14 +195,14 @@
                         
                         <!-- Next Page -->
                         <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-                            <a class="page-link" href="?Page=@(Model.CurrentPage + 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="Next">
+                            <a class="page-link" href="?Page=@(Model.CurrentPage + 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="Next">
                                 <i class="fas fa-angle-right"></i>
                             </a>
                         </li>
                         
                         <!-- Last Page -->
                         <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                            <a class="page-link" href="?Page=@Model.TotalPages&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="Last">
+                            <a class="page-link" href="?Page=@Model.TotalPages&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.AuthorityKey) ? "" : "&AuthorityKey=" + Model.AuthorityKey)" aria-label="Last">
                                 <i class="fas fa-angle-double-right"></i>
                             </a>
                         </li>

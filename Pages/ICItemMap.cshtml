@@ -22,23 +22,15 @@
 
     <div class="card mb-3 p-3">
         <form method="get" class="row g-3 align-items-end" id="searchForm">
-            <div class="col-md-3">
-                <label class="form-label">Client Code:</label>
-                <input asp-for="ClientCode" type="text" class="form-control" placeholder="Enter client code" />
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label class="form-label">Item Number:</label>
                 <input asp-for="ItemNumber" type="text" class="form-control" placeholder="Enter item number" />
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label class="form-label">ETIM Item Code:</label>
                 <input asp-for="EtimItemCode" type="text" class="form-control" placeholder="Enter ETIM item code" />
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Item Class Code:</label>
-                <input asp-for="ItemClassCode" type="text" class="form-control" placeholder="Enter item class code" />
-            </div>
-            <div class="col-md-12">
+            <div class="col-md-4">
                 <button type="submit" class="btn btn-teal" id="searchButton">
                     <span class="button-text"><i class="fas fa-search me-2"></i>SEARCH</span>
                     <span class="button-loading" style="display: none;">
@@ -162,14 +154,14 @@
                     <ul class="pagination pagination-sm mb-0">
                         <!-- First Page -->
                         <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                            <a class="page-link" href="?Page=1&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)@(string.IsNullOrEmpty(Model.ItemClassCode) ? "" : "&ItemClassCode=" + Model.ItemClassCode)" aria-label="First">
+                            <a class="page-link" href="?Page=1&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)" aria-label="First">
                                 <i class="fas fa-angle-double-left"></i>
                             </a>
                         </li>
                         
                         <!-- Previous Page -->
                         <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-                            <a class="page-link" href="?Page=@(Model.CurrentPage - 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)@(string.IsNullOrEmpty(Model.ItemClassCode) ? "" : "&ItemClassCode=" + Model.ItemClassCode)" aria-label="Previous">
+                            <a class="page-link" href="?Page=@(Model.CurrentPage - 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)" aria-label="Previous">
                                 <i class="fas fa-angle-left"></i>
                             </a>
                         </li>
@@ -190,7 +182,7 @@
                         @for (int i = startPage; i <= endPage; i++)
                         {
                             <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                <a class="page-link" href="?Page=@i&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)@(string.IsNullOrEmpty(Model.ItemClassCode) ? "" : "&ItemClassCode=" + Model.ItemClassCode)">@i</a>
+                                <a class="page-link" href="?Page=@i&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)">@i</a>
                             </li>
                         }
                         
@@ -203,14 +195,14 @@
                         
                         <!-- Next Page -->
                         <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-                            <a class="page-link" href="?Page=@(Model.CurrentPage + 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)@(string.IsNullOrEmpty(Model.ItemClassCode) ? "" : "&ItemClassCode=" + Model.ItemClassCode)" aria-label="Next">
+                            <a class="page-link" href="?Page=@(Model.CurrentPage + 1)&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)" aria-label="Next">
                                 <i class="fas fa-angle-right"></i>
                             </a>
                         </li>
                         
                         <!-- Last Page -->
                         <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                            <a class="page-link" href="?Page=@Model.TotalPages&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ClientCode) ? "" : "&ClientCode=" + Model.ClientCode)@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)@(string.IsNullOrEmpty(Model.ItemClassCode) ? "" : "&ItemClassCode=" + Model.ItemClassCode)" aria-label="Last">
+                            <a class="page-link" href="?Page=@Model.TotalPages&PageSize=@Model.PageSize@(string.IsNullOrEmpty(Model.ItemNumber) ? "" : "&ItemNumber=" + Model.ItemNumber)@(string.IsNullOrEmpty(Model.EtimItemCode) ? "" : "&EtimItemCode=" + Model.EtimItemCode)" aria-label="Last">
                                 <i class="fas fa-angle-double-right"></i>
                             </a>
                         </li>

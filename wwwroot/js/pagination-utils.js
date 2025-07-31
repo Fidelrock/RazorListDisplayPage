@@ -98,20 +98,16 @@ const PageSizeManager = {
         
         // Get current URL parameters to preserve existing filters
         const urlParams = new URLSearchParams(window.location.search);
-        const clientCode = urlParams.get('ClientCode') || '';
         const authorityKey = urlParams.get('AuthorityKey') || '';
         
         // Build URL with current search parameters
         let url = '?PageSize=' + pageSize + '&Page=1'; // Reset to first page when changing page size
         
-        if (clientCode && clientCode.trim() !== '') {
-            url += '&ClientCode=' + encodeURIComponent(clientCode.trim());
-        }
         if (authorityKey && authorityKey.trim() !== '') {
             url += '&AuthorityKey=' + encodeURIComponent(authorityKey.trim());
         }
         
-        console.log('Current filters - ClientCode:', clientCode, 'AuthorityKey:', authorityKey);
+        console.log('Current filters - AuthorityKey:', authorityKey);
         console.log('Navigating to:', url);
         window.location.href = url;
     },

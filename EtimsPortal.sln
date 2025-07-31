@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorTableDemo", "RazorTableDemo.csproj", "{ADD69663-3B28-414E-AED7-9577957AF026}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtimsPortal", "EtimsPortal.csproj", "{ADD69663-3B28-414E-AED7-9577957AF026}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -14,23 +14,17 @@ namespace RazorTableDemo.Services
         }
 
         public async Task<(IEnumerable<ICItemMap> Results, int TotalCount, int TotalPages)> GetICItemMapsPaginatedAsync(
-            string? clientCode = null, string? itemNumber = null, string? etimItemCode = null, string? itemClassCode = null, 
-            int page = 1, int pageSize = 10)
+            string? itemNumber = null, string? etimItemCode = null, int page = 1, int pageSize = 10)
         {
             using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             
-            // Build the WHERE clause
-            var whereClause = "WHERE 1=1";
+            // Build the WHERE clause - hardcode CARLTD
+            var whereClause = "WHERE ClientCode = 'CARLTD'";
             var parameters = new DynamicParameters();
             parameters.Add("Page", page);
             parameters.Add("PageSize", pageSize);
             parameters.Add("Offset", (page - 1) * pageSize);
 
-            if (!string.IsNullOrEmpty(clientCode))
-            {
-                whereClause += " AND ClientCode LIKE @ClientCode";
-                parameters.Add("ClientCode", $"%{clientCode}%");
-            }
             if (!string.IsNullOrEmpty(itemNumber))
             {
                 whereClause += " AND ItemNumber LIKE @ItemNumber";
@@ -40,11 +34,6 @@ namespace RazorTableDemo.Services
             {
                 whereClause += " AND EtimItemCode LIKE @EtimItemCode";
                 parameters.Add("EtimItemCode", $"%{etimItemCode}%");
-            }
-            if (!string.IsNullOrEmpty(itemClassCode))
-            {
-                whereClause += " AND ItemClassCode LIKE @ItemClassCode";
-                parameters.Add("ItemClassCode", $"%{itemClassCode}%");
             }
 
             // Get total count
@@ -58,7 +47,7 @@ namespace RazorTableDemo.Services
             var sql = $@"
                 SELECT * FROM ICItemMap 
                 {whereClause}
-                ORDER BY ClientCode, ItemNumber, ItemIndex
+                ORDER BY ItemNumber
                 OFFSET @Offset ROWS 
                 FETCH NEXT @PageSize ROWS ONLY";
 

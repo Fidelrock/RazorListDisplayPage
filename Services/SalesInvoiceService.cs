@@ -14,37 +14,21 @@ namespace RazorTableDemo.Services
         }
 
         public async Task<(IEnumerable<SalesInvoice> Results, int TotalCount, int TotalPages)> GetSalesInvoicesPaginatedAsync(
-            string? clientCode = null, string? docNumber = null, string? customerName = null, string? docType = null,
-            DateTime? fromDate = null, DateTime? toDate = null, int page = 1, int pageSize = 10)
+            string? invoiceNumber = null, DateTime? fromDate = null, DateTime? toDate = null, int page = 1, int pageSize = 10)
         {
             using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             
-            // Build the WHERE clause
-            var whereClause = "WHERE 1=1";
+            // Build the WHERE clause - hardcode CARLTD
+            var whereClause = "WHERE ClientCode = 'CARLTD'";
             var parameters = new DynamicParameters();
             parameters.Add("Page", page);
             parameters.Add("PageSize", pageSize);
             parameters.Add("Offset", (page - 1) * pageSize);
 
-            if (!string.IsNullOrEmpty(clientCode))
+            if (!string.IsNullOrEmpty(invoiceNumber))
             {
-                whereClause += " AND ClientCode LIKE @ClientCode";
-                parameters.Add("ClientCode", $"%{clientCode}%");
-            }
-            if (!string.IsNullOrEmpty(docNumber))
-            {
-                whereClause += " AND DocNumber LIKE @DocNumber";
-                parameters.Add("DocNumber", $"%{docNumber}%");
-            }
-            if (!string.IsNullOrEmpty(customerName))
-            {
-                whereClause += " AND CustomerName LIKE @CustomerName";
-                parameters.Add("CustomerName", $"%{customerName}%");
-            }
-            if (!string.IsNullOrEmpty(docType))
-            {
-                whereClause += " AND DocType LIKE @DocType";
-                parameters.Add("DocType", $"%{docType}%");
+                whereClause += " AND DocNumber LIKE @InvoiceNumber";
+                parameters.Add("InvoiceNumber", $"%{invoiceNumber}%");
             }
             if (fromDate.HasValue)
             {
@@ -54,7 +38,7 @@ namespace RazorTableDemo.Services
             if (toDate.HasValue)
             {
                 whereClause += " AND DocDate <= @ToDate";
-                parameters.Add("ToDate", toDate.Value.Date.AddDays(1).AddSeconds(-1));
+                parameters.Add("ToDate", toDate.Value.Date);
             }
 
             // Get total count
@@ -68,7 +52,7 @@ namespace RazorTableDemo.Services
             var sql = $@"
                 SELECT * FROM SalesInvoice 
                 {whereClause}
-                ORDER BY DocDate DESC, ETRTrxID DESC
+                ORDER BY DocDate DESC, DocNumber
                 OFFSET @Offset ROWS 
                 FETCH NEXT @PageSize ROWS ONLY";
 
