@@ -1,12 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using RazorTableDemo.Data;
 using RazorTableDemo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddControllers(); // Add API controller support
+
 
 // Register services
 builder.Services.AddScoped<ITaxAuthorityService, TaxAuthorityService>();
@@ -15,8 +13,7 @@ builder.Services.AddScoped<ISalesInvoiceService, SalesInvoiceService>();
 builder.Services.AddScoped<IETIMSEntityAttributeService, ETIMSEntityAttributeService>();
 builder.Services.AddScoped<IETIMSequenceService, ETIMSequenceService>();
 
-builder.Services.AddDbContext<ApplicationDBContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 
@@ -36,6 +33,6 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
-app.MapControllers(); // Map API controllers
+
 
 app.Run();
